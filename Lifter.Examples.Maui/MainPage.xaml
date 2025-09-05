@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Lifter.Examples.Maui.MainPage">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="25" Padding="30">
+
+            <Label 
+                Text="Lifter + Watson Webserver"
+                Style="{StaticResource Headline}"
+                SemanticProperties.HeadingLevel="Level1" />
+
+            <Label
+                Text="An embedded web server is running inside this MAUI application, managed by Lifter."
+                FontSize="16"/>
+
+            <Label 
+                Text="Server Listening on: http://localhost:8080"
+                FontAttributes="Bold"
+                FontSize="16"/>
+
+            <Button
+                x:Name="TestServerBtn"
+                Text="Test Controller Endpoint" 
+                Clicked="OnTestServerClicked"
+                HorizontalOptions="Fill" />
+
+            <Frame Padding="10" CornerRadius="5">
+                <VerticalStackLayout>
+                    <Label Text="Server Response:" FontAttributes="Bold"/>
+                    <Editor x:Name="ServerResponseEditor"
+                           HeightRequest="200"
+                           IsReadOnly="True"
+                           Text="Click the button to test the server..."/>
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
+

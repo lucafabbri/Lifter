@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- Multi-targeting for .NET 8 and .NET 9 -->
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <!-- Metadati per il pacchetto NuGet -->
+    <PackageId>Lifter.Core</PackageId>
+    <Version>1.1.0</Version>
+    <Authors>Luca</Authors>
+    <Description>
+      Core components for Lifter, a library to manage and monitor IHostedService instances in .NET applications.
+    </Description>
+    <PackageTags>hostedservices;background;service;host;lifter;core</PackageTags>
+    <RepositoryUrl>https://github.com/your-repo/Lifter</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+  </ItemGroup>
+
+</Project>
