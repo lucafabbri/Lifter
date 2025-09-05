@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <!-- Multi-targeting for .NET MAUI on .NET 8 and .NET 9 -->
@@ -11,7 +11,7 @@
 
     <!-- Metadati per il pacchetto NuGet -->
     <PackageId>Lifter.Maui</PackageId>
-    <Version>0.0.1</Version>
+    <Version>1.0.0</Version>
     <Authors>Luca Fabbri</Authors>
     <PackageContact>lucafabbri84@live.it</PackageContact>
     <Copyright>Copyright (c) Luca Fabbri 2024</Copyright>
