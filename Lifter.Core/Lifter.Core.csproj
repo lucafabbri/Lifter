@@ -5,21 +5,37 @@
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <!-- Metadati per il pacchetto NuGet -->
     <PackageId>Lifter.Core</PackageId>
-    <Version>1.1.0</Version>
-    <Authors>Luca</Authors>
+    <Version>0.0.1</Version>
+    <Authors>Luca Fabbri</Authors>
+    <PackageContact>lucafabbri84@live.it</PackageContact>
+    <Copyright>Copyright (c) Luca Fabbri 2024</Copyright>
     <Description>
       Core components for Lifter, a library to manage and monitor IHostedService instances in .NET applications.
     </Description>
-    <PackageTags>hostedservices;background;service;host;lifter;core</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/your-repo/Lifter</PackageProjectUrl>
     <RepositoryUrl>https://github.com/your-repo/Lifter</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>hostedservices;background;service;host;lifter;core</PackageTags>
+    <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <!-- Configurazione per SourceLink -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
   </ItemGroup>
 
 </Project>
+
