@@ -1,0 +1,13 @@
+﻿@using BootstrapBlazor.Components
+
+<Menu Items="@GetMenuItems()" IsAccordion="true" />
+
+@code {
+    private IEnumerable<MenuItem> GetMenuItems() =>
+        new List<MenuItem>
+        {
+            new() { Text = "Home", Icon = "fa-solid fa-house", Url = "/" },
+            new() { Text = "Dashboard", Icon = "fa-solid fa-gauge-high", Url = "/dashboard" }
+        };
+}
+

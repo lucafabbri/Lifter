@@ -1,0 +1,110 @@
+﻿@page "/dashboard"
+@using Lifter.Core.WatchDog
+@implements IDisposable
+@inject IHostManagerWatchDog WatchDog
+@inject ToastService ToastService
+
+<PageTitle>Services Dashboard</PageTitle>
+
+<h1 class="mb-3">Services Dashboard</h1>
+<p class="mb-4">
+    Use this dashboard to monitor and control all background services managed by Lifter.
+</p>
+
+@if (_serviceStates.Any())
+{
+    <div class="row">
+        @foreach (var state in _serviceStates)
+        {
+            <div class="col-12 col-lg-6 mb-3">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">@state.Instance.GetType().Name</h5>
+                        <Badge Color="@GetBadgeColor(state.Status)">@state.Status.ToString()</Badge>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <strong>Startup Policy:</strong> @state.Options.Startup <br />
+                            <strong>Restart Policy:</strong> @state.Options.Restart
+                        </div>
+                        <div class="btn-group">
+                            <Button Icon="fa-solid fa-play"
+                                    Color="Color.Success"
+                                    Size="Size.ExtraSmall"
+                                    IsAsync="true"
+                                    OnClick="() => StartService(state)"
+                                    IsEnabled="@CanStart(state)"
+                                    Text="Start" />
+                            <Button Icon="fa-solid fa-stop"
+                                    Color="Color.Danger"
+                                    Size="Size.ExtraSmall"
+                                    IsAsync="true"
+                                    OnClick="() => StopService(state)"
+                                    IsEnabled="@CanStop(state)"
+                                    Text="Stop" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <Alert Color="Color.Info">No hosted services are currently being monitored.</Alert>
+}
+
+
+@code {
+    private List<HostedServiceState> _serviceStates = new();
+
+    protected override void OnInitialized()
+    {
+        _serviceStates = WatchDog.GetAllStatuses().Values.ToList();
+        WatchDog.StatusChanged += OnServiceStatusChanged;
+    }
+
+    private void OnServiceStatusChanged(HostedServiceState updatedState)
+    {
+        // This event can be fired from a background thread, so we must use InvokeAsync
+        // to safely update the UI.
+        InvokeAsync(() =>
+        {
+            var index = _serviceStates.FindIndex(s => s.Instance.GetType() == updatedState.Instance.GetType());
+            if (index != -1)
+            {
+                _serviceStates[index] = updatedState;
+                StateHasChanged(); // Tell Blazor to re-render
+            }
+        });
+    }
+
+    private async Task StartService(HostedServiceState state)
+    {
+        await WatchDog.StartServiceAsync(state.Instance.GetType());
+    }
+
+    private async Task StopService(HostedServiceState state)
+    {
+        await WatchDog.StopServiceAsync(state.Instance.GetType());
+    }
+
+    private bool CanStart(HostedServiceState state) => state.Status is ServiceStatus.Stopped or ServiceStatus.Failed;
+    private bool CanStop(HostedServiceState state) => state.Status is ServiceStatus.Running;
+
+    private Color GetBadgeColor(ServiceStatus status) => status switch
+    {
+        ServiceStatus.Running => Color.Success,
+        ServiceStatus.Stopped => Color.Secondary,
+        ServiceStatus.Failed => Color.Danger,
+        ServiceStatus.Starting or ServiceStatus.Restarting => Color.Info,
+        ServiceStatus.Stopping => Color.Warning,
+        _ => Color.Dark
+    };
+
+    public void Dispose()
+    {
+        WatchDog.StatusChanged -= OnServiceStatusChanged;
+    }
+}
+

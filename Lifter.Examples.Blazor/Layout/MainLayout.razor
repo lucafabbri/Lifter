@@ -1,0 +1,28 @@
+﻿@inherits LayoutComponentBase
+@using Lifter.Blazor
+@using BootstrapBlazor.Components
+
+<Layout SideWidth="260" IsPage="true">
+    <Header>
+        <div class="d-flex align-items-center">
+            <span class="ms-3 flex-fill fs-5">Lifter Examples</span>
+            <a href="https://github.com/lucafabbri/Lifter" target="_blank" class="ms-auto me-3 text-light">
+                <i class="fa-brands fa-github fs-4"></i>
+            </a>
+        </div>
+    </Header>
+    <Side>
+        <NavMenu />
+    </Side>
+    <Main>
+        @Body
+    </Main>
+    <Footer>
+        <div class="d-flex justify-content-center align-items-center h-100">
+            <span>&copy; 2024 - Lifter Project</span>
+        </div>
+    </Footer>
+</Layout>
+
+<LifterHost />
+

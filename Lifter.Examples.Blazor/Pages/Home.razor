@@ -1,0 +1,42 @@
+﻿@page "/"
+@using Lifter.Examples.Blazor.Services
+@implements IDisposable
+@inject SharedStateService StateService
+
+<PageTitle>Home</PageTitle>
+
+<h1 class="mb-3">Hello, Lifter!</h1>
+
+<p class="mb-4">
+    This example demonstrates a background service managed by Lifter,
+    which periodically updates the text below.
+</p>
+
+<Alert Color="Color.Info" ShowIcon="true">
+    <div class="d-flex">
+        <strong class="me-2">Message:</strong>
+        <span>@StateService.CurrentMessage</span>
+    </div>
+</Alert>
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Subscribe to the state change event
+        StateService.OnChange += HandleStateChange;
+    }
+
+    private void HandleStateChange()
+    {
+        // When the state changes, tell Blazor to re-render the component.
+        // InvokeAsync is used to ensure the update happens on the UI thread.
+        InvokeAsync(StateHasChanged);
+    }
+
+    // It's crucial to unsubscribe to prevent memory leaks
+    public void Dispose()
+    {
+        StateService.OnChange -= HandleStateChange;
+    }
+}
+

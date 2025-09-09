@@ -54,7 +54,7 @@
     <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.100" />
     
     <!-- Pacchetto per la Dependency Injection di HttpClient -->
-    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.9" />
 
     <!-- Dipendenze per Watson Webserver -->
     <PackageReference Include="Watson.Extensions.Hosting" Version="1.0.2" />

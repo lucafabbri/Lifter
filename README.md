@@ -6,7 +6,7 @@ Lifter is not just a single library, but a suite of focused packages. Each packa
 
 ### Our First Mission: `IHostedService` in UI Frameworks
 
-The first packages in the Lifter ecosystem tackle a significant challenge: seamlessly integrating and managing `IHostedService` instances in environments like .NET MAUI. This solves a critical problem, allowing you to run background tasks, local servers, and resilient services within your client applications.
+The first packages in the Lifter ecosystem tackle a significant challenge: seamlessly integrating and managing `IHostedService` instances in environments like **.NET MAUI** and **Blazor WebAssembly**. This solves a critical problem, allowing you to run background tasks, local servers, and resilient services within your client applications.
 
 ## 🤔 Our Philosophy: Why Lifter Exists
 
@@ -18,26 +18,27 @@ We believe in:
 * **Modern .NET Patterns**: We leverage the best of modern .NET, including dependency injection, hosting abstractions, and clean extension methods.
 * **Excellent Developer Experience**: Our goal is to create APIs that are easy to use, well-documented, and just *work*.
 
-Our first offering, which brings `IHostedService` support to .NET MAUI, is a perfect example of this philosophy in action. It takes a powerful but inaccessible server-side pattern and makes it a first-class citizen in a client-side framework.
+Our first offering, which brings `IHostedService` support to modern UI frameworks, is a perfect example of this philosophy in action. It takes a powerful but inaccessible server-side pattern and makes it a first-class citizen in client-side applications.
 
 ## ✨ Core Features of the Hosting Package
 
 * **Seamless `IHostedService` Integration**: Add long-running background services to your applications with zero boilerplate.
 * **Unified Dependency Injection**: Your hosted services share the exact same DI container as your main application, enabling seamless communication and state sharing.
 * **Advanced Lifecycle Control (WatchDog)**: Go beyond simple start/stop with a powerful `WatchDog` service that provides:
-    * Configurable startup policies (Automatic/Manual).
-    * Resilient restart policies (Automatic with attempt limits/Manual).
-    * Real-time status monitoring and state-change notifications.
+  * Configurable startup policies (Automatic/Manual).
+  * Resilient restart policies (Automatic with attempt limits/Manual).
+  * Real-time status monitoring and state-change notifications.
 * **Thread-Safe by Design**: The WatchDog service is built with concurrency in mind, ensuring safe management of services even in complex multi-threaded scenarios.
-* **Platform Agnostic Core**: `Lifter.Core` contains all the main logic and has no dependencies on any specific UI framework, making it extensible for future integrations (e.g., Avalonia, WPF).
+* **Platform Agnostic Core**: `Lifter.Core` contains all the main logic and has no dependencies on any specific UI framework, making it extensible for future integrations.
 * **Lightweight and Unobtrusive**: Lifter integrates cleanly into your application's startup process without imposing a heavy framework.
 
 ## 📦 Packages in the Ecosystem
 
-| Package         | NuGet | Description                                                                                              |
-| --------------- | ----- | -------------------------------------------------------------------------------------------------------- |
-| **`Lifter.Core`** |       | The core library containing the `HostManager` and the advanced `WatchDog` service. Platform-agnostic. |
-| **`Lifter.Maui`** |       | The integration layer for .NET MAUI. It connects the core logic to the MAUI application lifecycle.     |
+| Package             | NuGet | Description                                                                                                 |
+| :------------------ | :---- | :---------------------------------------------------------------------------------------------------------- |
+| **`Lifter.Core`**   |       | The core library containing the `HostManager` and the advanced `WatchDog` service. Platform-agnostic.       |
+| **`Lifter.Maui`**   |       | The integration layer for .NET MAUI. It connects the core logic to the MAUI application lifecycle.          |
+| **`Lifter.Blazor`** |       | The integration layer for Blazor WebAssembly. It connects the core logic to the Blazor component lifecycle. |
 
 ## 🚀 Getting Started with .NET MAUI
 
@@ -50,12 +51,11 @@ First, install the necessary packages for your .NET MAUI project.
 ```shell
 dotnet add package Lifter.Maui
 dotnet add package Watson.Extensions.Hosting
-dotnet add package Watson.Lite
 ```
 
 ### 2. Define Your Services
 
-In your `MauiProgram.cs`, register your services just as you would in any other .NET application. Notice that `Watson.Extensions.Hosting` automatically registers an `IHostedService` for you.
+In your `MauiProgram.cs`, register your services just as you would in any other .NET application.
 
 ```csharp
 // MauiProgram.cs
@@ -76,7 +76,6 @@ public static class MauiProgram
         {
             options.Port = 8080;
             options.Hostname = "localhost";
-            options.MapGet("/", () => Results.Ok("Hello from MAUI Hosted Service!"));
         });
 
         // 2. Add Lifter support.
@@ -88,63 +87,131 @@ public static class MauiProgram
 }
 ```
 
-That's it! When your MAUI application starts, `Lifter` will discover the `IHostedService` registered by `AddWatsonWebserver` and automatically call `StartAsync`. When the application is closed, `StopAsync` will be called, gracefully shutting down the web server.
+That's it! When your MAUI application starts, `Lifter` will discover the `IHostedService` and automatically call `StartAsync`. When the application is closed, `StopAsync` will be called.
+
+## 🚀 Getting Started with Blazor WebAssembly
+
+Let's integrate a periodic data-polling service into a Blazor WASM application.
+
+### 1. Installation
+
+First, install the necessary package for your Blazor WASM project.
+
+```shell
+dotnet add package Lifter.Blazor
+```
+
+### 2. Define Your Service
+
+Create your background service by inheriting from `BackgroundService`.
+
+```csharp
+// Services/DataPollingService.cs
+using Microsoft.Extensions.Hosting;
+
+public class DataPollingService : BackgroundService
+{
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(10));
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            Console.WriteLine("Polling for new data...");
+            await timer.WaitForNextTick(stoppingToken);
+        }
+    }
+}
+```
+
+### 3. Configure Services and Add the Host Component
+
+In `Program.cs`, register Lifter and your service. Then, add the `<LifterHost />` component to your `MainLayout.razor` file.
+
+```csharp
+// Program.cs
+using Lifter.Blazor;
+using Lifter.Core; // For AddHostedServiceWithPolicies
+using YourApp.Services;
+
+var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
+// 1. Add Lifter support
+builder.Services.AddLifter();
+
+// 2. Register your services with desired policies
+builder.Services.AddHostedServiceWithPolicies<DataPollingService>(options =>
+{
+    options.Startup = Lifter.Core.WatchDog.StartupPolicy.Automatic;
+});
+
+await builder.Build().RunAsync();
+```
+
+```razor
+@* MainLayout.razor *@
+@inherits LayoutComponentBase
+@using Lifter.Blazor
+
+@* ... your existing layout markup ... *@
+
+@* 3. Add this invisible component to manage the lifecycle *@
+<LifterHost />
+```
+
+That's it! When your Blazor application loads, the `LifterHost` component will start all automatic services.
 
 ## 📚 Advanced Usage: The WatchDog Service
 
-For scenarios requiring fine-grained control, resilience, and monitoring, `Lifter` provides a powerful `WatchDog` service.
+For scenarios requiring fine-grained control, resilience, and monitoring, `Lifter` provides a powerful `WatchDog` service, available in both MAUI and Blazor.
 
 ### Why Use the WatchDog?
 
-The default behavior is great for simple fire-and-forget services. The WatchDog is for when you need more control:
-
-* **Manual Start**: Trigger a service based on user input (e.g., user logs in, presses a "Sync" button).
-* **Automatic Restarts**: Automatically restart a service if it fails unexpectedly, with configurable retry limits.
-* **Status Monitoring**: Query the state of any service (`Stopped`, `Starting`, `Running`, `Failed`) to update your UI.
+* **Manual Start**: Trigger a service based on user input.
+* **Automatic Restarts**: Automatically restart a service if it fails unexpectedly.
+* **Status Monitoring**: Query the state of any service (`Stopped`, `Running`, `Failed`) to update your UI.
 * **Notifications**: Subscribe to events to react instantly when a service's state changes.
 
 ### 1. Enabling the WatchDog
 
-Instead of `AddHostedService`, you register your services and the WatchDog using our dedicated extension method in `MauiProgram.cs`.
+In `Program.cs` (or `MauiProgram.cs`), register the WatchDog and your services with policies.
 
 ```csharp
-// MauiProgram.cs
-using Lifter.Core; // Namespace for AddLifterWatchDog
+// Program.cs or MauiProgram.cs
+using Lifter.Core;
+using Lifter.Core.WatchDog;
 
-builder.Services.AddLifterWatchDog(options =>
+// 1. Add the WatchDog service
+builder.Services.AddLifterWatchDog();
+
+// 2. Register your hosted services with policies
+builder.Services.AddHostedServiceWithPolicies<MyResilientService>(options =>
 {
-    // Register your hosted services here.
-    options.AddHostedService<MyResilientService>(serviceOptions =>
-    {
-        // This service will start automatically when the app starts.
-        serviceOptions.StartupPolicy = StartupPolicy.Automatic;
-
-        // If it fails, Lifter will try to restart it up to 5 times.
-        serviceOptions.RestartPolicy = RestartPolicy.Automatic;
-        serviceOptions.MaxRestartAttempts = 5;
-    });
-
-    options.AddHostedService<MyManualService>(serviceOptions =>
-    {
-        // This service will NOT start automatically.
-        // We will start it later using the IHostManagerWatchDog interface.
-        serviceOptions.StartupPolicy = StartupPolicy.Manual;
-        serviceOptions.RestartPolicy = RestartPolicy.Manual;
-    });
+    options.Startup = StartupPolicy.Automatic;
+    options.Restart = RestartPolicy.OnFailure;
+    options.MaxRestartAttempts = 5;
 });
 
-// You still need to call this to hook into the MAUI lifecycle.
+builder.Services.AddHostedServiceWithPolicies<MyManualService>(options =>
+{
+    options.Startup = StartupPolicy.Manual;
+});
+
+
+// 3. For MAUI, you still need to call this to hook into the lifecycle.
+// For Blazor, the <LifterHost /> component handles this.
+#if MAUI
 builder.SupportHostedServices();
+#endif
 ```
 
 ### 2. Controlling Services Manually
 
-Inject the `IHostManagerWatchDog` interface into your view models or pages to control your services at runtime.
+Inject the `IHostManagerWatchDog` interface into your pages, components, or view models to control your services at runtime. The C# code is the same for both Blazor and .NET MAUI.
 
 ```csharp
 using Lifter.Core.WatchDog;
 
-public class MyViewModel
+public class MyViewModel // Or a @code block in a Razor component
 {
     private readonly IHostManagerWatchDog _watchDog;
 
@@ -155,55 +222,59 @@ public class MyViewModel
 
     public async Task StartSyncService()
     {
-        // Start a service that was registered with a Manual startup policy.
-        await _watchDog.StartServiceAsync<MyManualService>();
-    }
-
-    public async Task StopSyncService()
-    {
-        await _watchDog.StopServiceAsync<MyManualService>();
+        await _watchDog.StartServiceAsync(typeof(MyManualService));
     }
 
     public HostedServiceState GetSyncServiceState()
     {
-        // Get the current state to update the UI.
-        return _watchDog.GetServiceState<MyManualService>();
+        return _watchDog.GetStatus(typeof(MyManualService));
     }
 }
 ```
 
 ### 3. Receiving State Notifications
 
-The `WatchDog` exposes an event that fires whenever any service changes its state. This is perfect for updating the UI in real-time.
+The `WatchDog` exposes a `StatusChanged` event that fires whenever any service changes its state. This is perfect for updating the UI in real-time, but remember to dispatch UI updates to the correct thread.
+
+**For .NET MAUI:**
 
 ```csharp
-public class MyViewModel : IDisposable
+// In a ViewModel or Page code-behind
+_watchDog.StatusChanged += (state) =>
 {
-    private readonly IHostManagerWatchDog _watchDog;
-
-    public MyViewModel(IHostManagerWatchDog watchDog)
+    // Ensure you dispatch UI updates to the main thread.
+    MainThread.BeginInvokeOnMainThread(() =>
     {
-        _watchDog = watchDog;
-        _watchDog.OnStateChanged += HandleServiceStateChange;
+        if (state.Instance.GetType() == typeof(MyManualService))
+        {
+            Console.WriteLine($"MyManualService new state: {state.Status}");
+        }
+    });
+};
+```
+
+**For Blazor WebAssembly:**
+
+```razor
+@* In a Razor component *@
+@implements IDisposable
+@inject IHostManagerWatchDog WatchDog
+
+@code {
+    protected override void OnInitialized()
+    {
+        WatchDog.StatusChanged += HandleServiceStateChange;
     }
 
-    private void HandleServiceStateChange(object sender, HostedServiceState state)
+    private void HandleServiceStateChange(HostedServiceState state)
     {
-        // This event fires on a background thread.
-        // Ensure you dispatch UI updates to the main thread.
-        MainThread.BeginInvokeOnMainThread(() =>
-        {
-            if (state.ServiceType == typeof(MyManualService))
-            {
-                Console.WriteLine($"MyManualService new state: {state.Status}");
-                // Update UI properties based on state.Status, state.Exception, etc.
-            }
-        });
+        // Use InvokeAsync to safely update the UI from the event handler.
+        InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()
     {
-        _watchDog.OnStateChanged -= HandleServiceStateChange;
+        WatchDog.StatusChanged -= HandleServiceStateChange;
     }
 }
 ```
@@ -212,9 +283,9 @@ public class MyViewModel : IDisposable
 
 We welcome contributions from the community! Whether it's a bug fix, a new feature, or a documentation improvement, your help is greatly appreciated.
 
-1.  **Report Bugs**: If you find an issue, please [open an issue](https://github.com/your-repo/Lifter/issues) and provide detailed steps to reproduce it.
-2.  **Suggest Features**: Have a great idea for a new integration (e.g., Avalonia, WPF) or an improvement? [Open an issue](https://github.com/your-repo/Lifter/issues) to start a discussion.
-3.  **Submit Pull Requests**: Feel free to fork the repository, create a new branch for your changes, and open a Pull Request.
+1. **Report Bugs**: If you find an issue, please [open an issue](https://github.com/your-repo/Lifter/issues).
+2. **Suggest Features**: Have a great idea for a new integration? [Open an issue](https://github.com/your-repo/Lifter/issues) to start a discussion.
+3. **Submit Pull Requests**: Feel free to fork the repository and open a Pull Request.
 
 ## ❤️ Support the Project
 
@@ -225,4 +296,3 @@ This helps raise the project's visibility and motivates us to keep improving it 
 ## 📜 License
 
 This project is licensed under the [MIT License](https://opensource.org/licenses/MIT).
-```

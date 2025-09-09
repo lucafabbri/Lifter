@@ -20,8 +20,8 @@
       allowing for long-running background tasks managed by the app lifecycle.
     </Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/your-repo/Lifter</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/your-repo/Lifter</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/lucafabbri/Lifter</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/lucafabbri/Lifter</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>maui;hostedservices;background;service;host;lifter</PackageTags>
     <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
@@ -40,6 +40,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Lifter.Core\Lifter.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.Maui.Controls" Version="9.0.100" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Microsoft.Maui.Controls.Compatibility" Version="9.0.100" />
   </ItemGroup>
 
 </Project>

@@ -17,8 +17,8 @@
       Core components for Lifter, a library to manage and monitor IHostedService instances in .NET applications.
     </Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/your-repo/Lifter</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/your-repo/Lifter</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/lucafabbri/Lifter</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/lucafabbri/Lifter</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>hostedservices;background;service;host;lifter;core</PackageTags>
     <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
@@ -33,8 +33,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.9" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.9" />
   </ItemGroup>
 
 </Project>

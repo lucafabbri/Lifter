@@ -1,0 +1,28 @@
+﻿@using Lifter.Core
+@implements IAsyncDisposable
+@inject IServiceProvider ServiceProvider
+
+@code {
+    private bool _hostStarted = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!_hostStarted)
+        {
+            HostManager.Initialize(ServiceProvider);
+            await HostManager.StartAsync();
+            _hostStarted = true;
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_hostStarted)
+        {
+            // Aggiungiamo un log per chiarezza durante il debug
+            Console.WriteLine("LifterHost is disposing. Stopping hosted services...");
+            await HostManager.StopAsync();
+            Console.WriteLine("Hosted services stopped.");
+        }
+    }
+}
