@@ -11,7 +11,7 @@
 
     <!-- Metadati per il pacchetto NuGet -->
     <PackageId>Lifter.Maui</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Authors>Luca Fabbri</Authors>
     <PackageContact>lucafabbri84@live.it</PackageContact>
     <Copyright>Copyright (c) Luca Fabbri 2024</Copyright>
