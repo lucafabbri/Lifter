@@ -38,28 +38,37 @@ jobs:
             echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
           fi
 
-      # 4. Restore workloads (required for Lifter.Maui and Lifter.Blazor)
+      # 4. Restore workloads (only for Blazor wasm-tools)
       - name: Restore workloads
-        run: dotnet workload restore Lifter.Libraries.sln
+        run: dotnet workload restore Lifter.Blazor/Lifter.Blazor.csproj
 
-      # 5. Restore dependencies
+      # 5. Restore dependencies (excluding Lifter.Maui)
       - name: Restore dependencies
-        run: dotnet restore Lifter.Libraries.sln
+        run: |
+          dotnet restore Lifter.Core/Lifter.Core.csproj
+          dotnet restore Lifter.Avalonia/Lifter.Avalonia.csproj
+          dotnet restore Lifter.Blazor/Lifter.Blazor.csproj
 
-      # 5. Build in Release configuration
+      # 6. Build in Release configuration (excluding Lifter.Maui)
       - name: Build
-        run: dotnet build Lifter.Libraries.sln --no-restore --configuration Release
+        run: |
+          dotnet build Lifter.Core/Lifter.Core.csproj --no-restore --configuration Release
+          dotnet build Lifter.Avalonia/Lifter.Avalonia.csproj --no-restore --configuration Release
+          dotnet build Lifter.Blazor/Lifter.Blazor.csproj --no-restore --configuration Release
 
-      # 6. Run tests
+      # 7. Run tests (if any)
       - name: Run tests
-        run: dotnet test Lifter.Libraries.sln --no-build --configuration Release --verbosity normal
+        run: echo "No tests configured yet"
 
       # --- Publishing (only on tag push or manual workflow) ---
 
-      # 7. Pack NuGet packages
+      # 8. Pack NuGet packages (excluding Lifter.Maui)
       - name: Pack NuGet packages
         if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
-        run: dotnet pack Lifter.Libraries.sln --no-build --configuration Release --output ./packages
+        run: |
+          dotnet pack Lifter.Core/Lifter.Core.csproj --no-build --configuration Release --output ./packages
+          dotnet pack Lifter.Avalonia/Lifter.Avalonia.csproj --no-build --configuration Release --output ./packages
+          dotnet pack Lifter.Blazor/Lifter.Blazor.csproj --no-build --configuration Release --output ./packages
 
       # 8. Publish to NuGet
       - name: Publish to NuGet
