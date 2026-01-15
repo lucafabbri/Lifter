@@ -1,0 +1,67 @@
+title: Lifter Documentation
+description: A toolkit for modern .NET development - Lift your development experience
+theme: just-the-docs
+baseurl: "/Lifter"
+url: "https://lucafabbri.github.io"
+
+# Color scheme
+color_scheme: dark
+
+# Logo
+logo: "/assets/images/lifter-logo.png"
+
+# Navigation
+nav_enabled: true
+search_enabled: true
+
+# Footer
+footer_content: "Copyright &copy; 2024-2026 Luca Fabbri. Distributed under the <a href=\"https://github.com/lucafabbri/Lifter/blob/main/LICENSE\">MIT License</a>."
+
+# Back to top link
+back_to_top: true
+back_to_top_text: "Back to top"
+
+# Plugins
+plugins:
+  - jekyll-seo-tag
+
+# SEO
+tagline: A toolkit for modern .NET development
+author:
+  name: Luca Fabbri
+  email: lucafabbri84@live.it
+
+social:
+  name: Lifter
+  links:
+    - https://github.com/lucafabbri/Lifter
+
+# Google Analytics (optional)
+# ga_tracking: UA-XXXXXXXXX-X
+
+# Aux links
+aux_links:
+  "Lifter on GitHub":
+    - "https://github.com/lucafabbri/Lifter"
+  "NuGet Gallery":
+    - "https://www.nuget.org/profiles/lucafabbri"
+
+# Heading anchors
+heading_anchors: true
+
+# Collections
+collections:
+  docs:
+    permalink: "/:collection/:path/"
+    output: true
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+  - scope:
+      path: "latest"
+    values:
+      version: "1.1 (latest)"
