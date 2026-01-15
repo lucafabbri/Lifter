@@ -1,0 +1,100 @@
+# This workflow builds, tests, publishes NuGet packages, and updates documentation
+name: Publish to NuGet and Update Docs
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # Triggers on version tags like v1.1.0
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 1.1.0)'
+        required: true
+
+jobs:
+  build-test-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required for creating GitHub Release and pushing to gh-pages
+
+    steps:
+      # 1. Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Setup .NET SDK (both 8 and 9 for multi-targeting)
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+
+      # 3. Extract version from tag or manual input
+      - name: Extract version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "VERSION=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+          fi
+
+      # 4. Restore dependencies
+      - name: Restore dependencies
+        run: dotnet restore Lifter.Libraries.sln
+
+      # 5. Build in Release configuration
+      - name: Build
+        run: dotnet build Lifter.Libraries.sln --no-restore --configuration Release
+
+      # 6. Run tests
+      - name: Run tests
+        run: dotnet test Lifter.Libraries.sln --no-build --configuration Release --verbosity normal
+
+      # --- Publishing (only on tag push or manual workflow) ---
+
+      # 7. Pack NuGet packages
+      - name: Pack NuGet packages
+        if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+        run: dotnet pack Lifter.Libraries.sln --no-build --configuration Release --output ./packages
+
+      # 8. Publish to NuGet
+      - name: Publish to NuGet
+        if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+        run: dotnet nuget push "./packages/*.nupkg" --api-key "${{ secrets.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+      # 9. Create versioned documentation
+      - name: Create versioned documentation
+        if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+        run: |
+          VERSION=${{ steps.version.outputs.VERSION }}
+          MAJOR_MINOR=$(echo $VERSION | cut -d. -f1,2)
+          
+          # Create versioned docs directory
+          mkdir -p docs/v${MAJOR_MINOR}
+          
+          # Copy latest docs to versioned directory
+          cp -r docs/latest/* docs/v${MAJOR_MINOR}/
+          
+          # Update version placeholders
+          find docs/v${MAJOR_MINOR} -type f -name "*.md" -exec sed -i "s/VERSION_PLACEHOLDER/${VERSION}/g" {} \;
+          find docs/v${MAJOR_MINOR} -type f -name "*.md" -exec sed -i "s|/latest/|/v${MAJOR_MINOR}/|g" {} \;
+
+      # 10. Deploy documentation to GitHub Pages
+      - name: Deploy to GitHub Pages
+        if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: docs
+          clean: false
+          commit-message: "docs: update documentation for v${{ steps.version.outputs.VERSION }}"
+
+      # 11. Create GitHub Release
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./packages/*.nupkg
+          generate_release_notes: true

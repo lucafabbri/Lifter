@@ -7,25 +7,26 @@
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
-    <!-- Metadati per il pacchetto NuGet -->
-    <PackageId>Lifter.Core</PackageId>
+    <!-- NuGet package metadata -->
+    <PackageId>Lifter.Avalonia</PackageId>
     <Version>1.1.0</Version>
     <Authors>Luca Fabbri</Authors>
     <PackageContact>lucafabbri84@live.it</PackageContact>
     <Copyright>Copyright (c) Luca Fabbri 2024</Copyright>
     <Description>
-      Core components for Lifter, a library to manage and monitor IHostedService instances in .NET applications.
+      Avalonia UI integration for Lifter. This package provides a HostedApplication base class 
+      with dependency injection, configuration, and IHostedService support for Avalonia applications.
     </Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/lucafabbri/Lifter</PackageProjectUrl>
     <RepositoryUrl>https://github.com/lucafabbri/Lifter</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageTags>hostedservices;background;service;host;lifter;core</PackageTags>
+    <PackageTags>avalonia;hostedservices;hosting;di;configuration;lifter</PackageTags>
     <PackageReleaseNotes>Initial release.</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <!-- Configurazione per SourceLink -->
+    <!-- SourceLink configuration -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -33,9 +34,18 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.9" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lifter.Core\Lifter.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.11" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.3.11" Condition="'$(Configuration)' == 'Debug'" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.9" />
   </ItemGroup>
 
 </Project>
-

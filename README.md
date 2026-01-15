@@ -34,11 +34,14 @@ Our first offering, which brings `IHostedService` support to modern UI framework
 
 ## 📦 Packages in the Ecosystem
 
-| Package             | NuGet | Description                                                                                                 |
-| :------------------ | :---- | :---------------------------------------------------------------------------------------------------------- |
-| **`Lifter.Core`**   |       | The core library containing the `HostManager` and the advanced `WatchDog` service. Platform-agnostic.       |
-| **`Lifter.Maui`**   |       | The integration layer for .NET MAUI. It connects the core logic to the MAUI application lifecycle.          |
-| **`Lifter.Blazor`** |       | The integration layer for Blazor WebAssembly. It connects the core logic to the Blazor component lifecycle. |
+| Package                     | Version | Description                                                                                                 |
+| :-------------------------- | :------ | :---------------------------------------------------------------------------------------------------------- |
+| **`Lifter.Core`**           | [![NuGet](https://img.shields.io/nuget/v/Lifter.Core.svg)](https://www.nuget.org/packages/Lifter.Core/) | The core library containing the `HostManager` and the advanced `WatchDog` service. Platform-agnostic.       |
+| **`Lifter.Maui`**           | [![NuGet](https://img.shields.io/nuget/v/Lifter.Maui.svg)](https://www.nuget.org/packages/Lifter.Maui/) | The integration layer for .NET MAUI. It connects the core logic to the MAUI application lifecycle.          |
+| **`Lifter.Avalonia`** ⭐ NEW | [![NuGet](https://img.shields.io/nuget/v/Lifter.Avalonia.svg)](https://www.nuget.org/packages/Lifter.Avalonia/) | Avalonia UI integration with `HostedApplication` base class, dependency injection, and configuration support. |
+| **`Lifter.Blazor`**         | [![NuGet](https://img.shields.io/nuget/v/Lifter.Blazor.svg)](https://www.nuget.org/packages/Lifter.Blazor/) | The integration layer for Blazor WebAssembly. It connects the core logic to the Blazor component lifecycle. |
+
+📚 **[Read the full documentation →](https://lucafabbri.github.io/Lifter/latest/getting-started)**
 
 ## 🚀 Getting Started with .NET MAUI
 
@@ -88,6 +91,67 @@ public static class MauiProgram
 ```
 
 That's it! When your MAUI application starts, `Lifter` will discover the `IHostedService` and automatically call `StartAsync`. When the application is closed, `StopAsync` will be called.
+
+## 🚀 Getting Started with Avalonia UI
+
+Let's integrate background services into an Avalonia desktop application using the `HostedApplication` base class.
+
+### 1. Installation
+
+First, install the necessary package for your Avalonia project.
+
+```shell
+dotnet add package Lifter.Avalonia
+```
+
+### 2. Create Your Main View
+
+```csharp
+// MainView.axaml.cs
+using Avalonia.Controls;
+using Lifter.Avalonia;
+
+public partial class MainView : UserControl, IHostedView
+{
+    public MainView()
+    {
+        InitializeComponent();
+    }
+}
+```
+
+### 3. Create Your App Class
+
+```csharp
+// App.cs
+using Lifter.Avalonia;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+public class App : HostedApplication<MainView>
+{
+    protected override void ConfigureServices(
+        IServiceCollection services, 
+        IConfiguration configuration)
+    {
+        // Configure window (Desktop only)
+        services.ConfigureWindow(config =>
+        {
+            config.Title = "My Avalonia App";
+            config.Width = 1024;
+            config.Height = 768;
+        });
+
+        // Register your services
+        services.AddSingleton<IMyService, MyService>();
+        
+        // Register background services
+        services.AddHostedService<MyBackgroundService>();
+    }
+}
+```
+
+That's it! The `HostedApplication` base class provides full dependency injection, configuration support, and automatic `IHostedService` lifecycle management. It works seamlessly on both Desktop (Windows/macOS/Linux) and Mobile platforms.
 
 ## 🚀 Getting Started with Blazor WebAssembly
 
