@@ -14,6 +14,7 @@ on:
 jobs:
   build-test-publish:
     runs-on: ubuntu-latest
+    environment: Production
     permissions:
       contents: write # Required for creating GitHub Release and pushing to gh-pages
 
