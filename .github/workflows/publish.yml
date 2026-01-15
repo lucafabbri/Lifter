@@ -40,7 +40,11 @@ jobs:
             echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
           fi
 
-      # 4. Restore dependencies
+      # 4. Install MAUI workloads (required for Lifter.Maui)
+      - name: Install MAUI workloads
+        run: dotnet workload install maui-android maui-ios maui-maccatalyst maui-windows
+
+      # 5. Restore dependencies
       - name: Restore dependencies
         run: dotnet restore Lifter.Libraries.sln
 
